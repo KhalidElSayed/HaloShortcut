@@ -1,38 +1,76 @@
 package com.zst.xhfw.addon;
 
-import android.os.Bundle;
+import java.util.List;
+
 import android.app.Activity;
-import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.Gravity;
-import android.view.Menu;
+import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-
+  		
+	private ListView mListAppInfo;
+    public static List<ApplicationInfo> getInstalledApplication(Context c) {
+		return c.getPackageManager().getInstalledApplications(PackageManager.GET_META_DATA);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-	}
-	
-	
+		       
+		// load list application
+        mListAppInfo = (ListView)findViewById(R.id.lvApps);
+        // create new adapter
+        AppInfoAdapter adapter = new AppInfoAdapter(this, getInstalledApplication(this), getPackageManager());
+        // set adapter to list view
+        mListAppInfo.setAdapter(adapter);
+        // implement event when an item on list view is selected
+        mListAppInfo.setOnItemClickListener(new OnItemClickListener() {           
+        	@Override
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+               // get the list adapter
+                AppInfoAdapter appInfoAdapter = (AppInfoAdapter)parent.getAdapter();
+                // get selected item on the list
+                appInfoAdapter.getItem(pos);      
+                //get EditText fields for modify
+                EditText e = (EditText)findViewById(R.id.editText1); // ditto for package name
+                EditText d = (EditText)findViewById(R.id.editText2); // gets value of shortcut name
+                //get the new "name" "pkg" Strings from selected item 
+                TextView tvAppName = (TextView)view.findViewById(R.id.tvName);
+                TextView tvPkgName = (TextView)view.findViewById(R.id.tvPack);
+                //get and set the new "name" "pkg" strings to EditText                                
+                String name = tvAppName.getText().toString();
+                		d.setText(name);                
+                String pkg = tvPkgName.getText().toString();
+                		e.setText(pkg);                                             	
+        	}        
+        });
+    }
+		                   
 	public void click(View v){  // android:onclick from XML
 		EditText d = (EditText)findViewById(R.id.editText2); // gets value of shortcut name
 		String name = d.getText().toString();
 		
 		EditText e = (EditText)findViewById(R.id.editText1); // ditto for package name
 		String pkg = e.getText().toString();
-
 		
 		add(pkg,name);
 	}
-	public void add(String pkg  , String name ){
+	
+	public void add(String pkg  , String name ){		
+						
 		Intent intent = new Intent(getPackageManager().getLaunchIntentForPackage(pkg)); // get launch intent from string
 		
 		intent.addFlags(0x00002000); // FLAG_FLOATING_WINDOW or FLAG_MULTI_WINDOW or FLAG_HALO_WINDOW from ParanoidAndroid Sources
@@ -45,15 +83,13 @@ public class MainActivity extends Activity {
         intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        // Finally add all the intent Flags
-        
-        
+        // Finally add all the intent Flags               
         try {
 			addShortcut(intent , name , pkg);
 		} catch (Exception e) {     // Add shortcut // Error occurs when package name is wrong or not available
 			Toast.makeText(this, "Error Occured \n " + e.toString() , Toast.LENGTH_LONG).show();;;
-		}
-	}
+		}      
+	}	
 	private void addShortcut(Intent shortcutIntent, String name , String pkg) throws Exception { // 90% code from StackOverflow
 	    //Adding shortcut for MainActivity 
 	    //on Home screen
@@ -68,7 +104,6 @@ public class MainActivity extends Activity {
 	    
 	    addIntent .setAction("com.android.launcher.action.INSTALL_SHORTCUT"); // Set action as the INSTALL_SHORTCUT broadcast
 	    getApplicationContext().sendBroadcast(addIntent); // INSTALL_SHORTCUT needs to be declared in AndroidManifest !!
-		Toast.makeText(this, "Shortcut Added", Toast.LENGTH_LONG).show();;;
-
-	}
+		Toast.makeText(this, "Shortcut Added", Toast.LENGTH_LONG).show();;;		 
+	}   
 }
