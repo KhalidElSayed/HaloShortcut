@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
   		
+	public boolean isSystemShortcutSelector = false;
+	
 	private ListView mListAppInfo;
     public static List<ApplicationInfo> getInstalledApplication(Context c) {
 		return c.getPackageManager().getInstalledApplications(PackageManager.GET_META_DATA);
@@ -27,6 +29,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		if (getIntent().getExtras() != null) isSystemShortcutSelector = true; //Not null means it was launched from ShortcutReceiver
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		       
@@ -101,6 +104,12 @@ public class MainActivity extends Activity {
 	    
 	    Drawable iconDrawable =  this.getPackageManager().getApplicationIcon(pkg); // get App icon as a drawable.
 	    addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, ((BitmapDrawable) iconDrawable).getBitmap()); //Convert  drawable TO bitmapdrawable TO bitmap & add in EXTRA
+	    
+	    if (isSystemShortcutSelector){
+	      setResult(100, addIntent); //send intent to ShortcutReceiver to continue
+	      finish();
+	      return;
+	    }
 	    
 	    addIntent .setAction("com.android.launcher.action.INSTALL_SHORTCUT"); // Set action as the INSTALL_SHORTCUT broadcast
 	    getApplicationContext().sendBroadcast(addIntent); // INSTALL_SHORTCUT needs to be declared in AndroidManifest !!
