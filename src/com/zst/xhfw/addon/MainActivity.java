@@ -72,8 +72,8 @@ public class MainActivity extends Activity {
 		add(pkg,name);
 	}
 	
-	public void add(String pkg  , String name ){		
-						
+	public void add(String pkg  , String name ){
+		try {			
 		Intent intent = new Intent(getPackageManager().getLaunchIntentForPackage(pkg)); // get launch intent from string
 		
 		intent.addFlags(0x00002000); // FLAG_FLOATING_WINDOW or FLAG_MULTI_WINDOW or FLAG_HALO_WINDOW from ParanoidAndroid Sources
@@ -87,10 +87,11 @@ public class MainActivity extends Activity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         // Finally add all the intent Flags               
-        try {
 			addShortcut(intent , name , pkg);
+		} catch (NullPointerException e) { // when intent is null, app is not a Launcher app
+			Toast.makeText(this, "This is not a launchable app \n \n" + e.toString() , Toast.LENGTH_LONG).show();
 		} catch (Exception e) {     // Add shortcut // Error occurs when package name is wrong or not available
-			Toast.makeText(this, "Error Occured \n " + e.toString() , Toast.LENGTH_LONG).show();;;
+			Toast.makeText(this, "Error Occured adding shortcut \n " + e.toString() , Toast.LENGTH_LONG).show();;;
 		}      
 	}	
 	private void addShortcut(Intent shortcutIntent, String name , String pkg) throws Exception { // 90% code from StackOverflow

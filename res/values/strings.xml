@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Halo Shortcuts</string>
-    <string name="action_settings">Settings</string>
-    <string name="choose_app">choose app</string>
-    <string name="btn_add">Add shortcut</string>
-    <string name="shc_name">Shorcut name :</string>
-    <string name="pkg_name">Packpage name :</string>
-    <string name="warning">if adds a app without "intent". App forceclose  </string>
+    <string name="btn_add">Add Shortcut</string>
+    <string name="shc_name">Shortcut Name:</string>
+    <string name="pkg_name">Package name:</string>
+    <string name="warning">apps with no launcher intent cannot be added</string>
 </resources>
